@@ -25,15 +25,13 @@ class video_player:
         print('restart...')
         self.cap.set(2,0)
         continue
-
+        
       outimg = frame
-      message = 'hi'
-      cv2.putText(outimg, message, (200,200), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
-      #ret,outimg = cv2.threshold(cv_image,127,255,cv2.THRESH_BINARY)
-      # try:
-      #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(outimg, "bgr8"))
-      # except CvBridgeError as e:
-      #   print(e)
+
+      try:
+        self.image_pub.publish(self.bridge.cv2_to_imgmsg(outimg, "bgr8"))
+      except CvBridgeError as e:
+        print(e)
 
 def main(args):
   rospy.init_node('video_player', anonymous=True)
