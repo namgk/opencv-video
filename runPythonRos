@@ -1,0 +1,3 @@
+#!/bin/bash
+dockerrun='sudo docker run -v /etc/localtime:/etc/localtime:ro'
+$dockerrun -d --name=$1 --net=ros -e ROS_MASTER_URI=http://roscore:11311 -e ROS_HOSTNAME=$1 -v $(pwd):/catkin_ws nhong/ros:catkin_ws python $2

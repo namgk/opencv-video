@@ -15,11 +15,11 @@ class image_converter:
     self.image_pub = rospy.Publisher("/usb_cam/image_grayscale",Image)
 
     self.bridge = CvBridge()
-    self.image_sub = rospy.Subscriber("/usb_cam/test",Image,self.callback)
+    self.image_sub = rospy.Subscriber("/grayscale_node",Image,self.callback)
 
   def callback(self,data):
     try:
-      cv_image = self.bridge.imgmsg_to_cv2(data, "passthrough")
+      cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
     except CvBridgeError as e:
       print(e)
 

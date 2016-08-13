@@ -8,9 +8,6 @@ import cv2
 import numpy as np
 import math
 
-cap = cv2.VideoCapture('vid.mp4')
-fgbg = cv2.BackgroundSubtractorMOG()
-
 def list_camera_ids():
   return ['0', '1']
 
@@ -21,16 +18,22 @@ class Camera(object):
     self.height = size[1]
     self.count = 0
     self.last_state = 0
+    self.cap = cv2.VideoCapture('vid.mp4')
+    self.fgbg = cv2.BackgroundSubtractorMOG()
+    self.fourcc = cv2.cv.CV_FOURCC('M','J','P','G')
+    #fourcc = int(self.cap.get(cv2.cv.CV_CAP_PROP_FOURCC))
+    self.out = cv2.VideoWriter('output.avi',self.fourcc, self.cap.get(cv2.cv.CV_CAP_PROP_FPS), (int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)),int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))))
+
+
 
   def get_frame(self):
-    ret, img = cap.read()
-    image = img
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    ret, img = self.cap.read()
+    image1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # ret,image = cv2.threshold(image,127,255,cv2.THRESH_BINARY)
-    image = fgbg.apply(image)
+    image2 = self.fgbg.apply(image1)
 
     x, y, w, h = rf_overlay(img)
-    ref = image[y:y+h, x:x+w]
+    ref = image2[y:y+h, x:x+w]
     white = cv2.countNonZero(ref)
 
     if white > 0 and self.last_state == 0:
@@ -40,14 +43,20 @@ class Camera(object):
     if white == 0 and self.last_state == 1:
       self.last_state = 0
 
-    cv2.putText(img, str(self.count), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
+    cv2.putText(img, str(self.count), (x-5,y-5), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+    
+    ret, image2 = cv2.imencode('.jpg', img)
 
-    ret, img = cv2.imencode('.jpg', img)
-    img = Image.fromarray(img)
+    if self.count < 3:
+      self.out.write(image2)
+    else:
+      self.out.release()
+
+    image2 = Image.fromarray(image2)
     #image = Image.new('RGB', (self.width, self.height), 'black')
     # buf = StringIO()
     # image.save(buf, 'JPEG')
-    return img.tobytes()
+    return image2.tobytes()
 
 def rf_overlay(image):
   height, width = image.shape[:2]
@@ -59,7 +68,7 @@ def rf_overlay(image):
   cv2.rectangle(image,
     (x1,y1),
     (x1+rf_width, y1+rf_height ),
-    (0,255,0),3)
+    (0,255,0),2)
   return (x1, y1, rf_width, rf_height)
 
 

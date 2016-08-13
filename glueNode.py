@@ -7,29 +7,15 @@ import rospy
 import cv2
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
-
-fgbg = cv2.BackgroundSubtractorMOG()
 
 class image_converter:
 
   def __init__(self):
-    self.image_pub = rospy.Publisher("/usb_cam/image_foreground",Image)
-
-    self.bridge = CvBridge()
-    self.image_sub = rospy.Subscriber("/usb_cam/image_grayscale",Image,self.callback)
+    self.image_pub = rospy.Publisher("/grayscale_node",Image)
+    self.image_sub = rospy.Subscriber("/original_node",Image,self.callback)
 
   def callback(self,data):
-    try:
-      cv_image = self.bridge.imgmsg_to_cv2(data, "mono8")
-      image = fgbg.apply(cv_image)
-    
-      outimg = image
-
-    # try:
-      self.image_pub.publish(self.bridge.cv2_to_imgmsg(outimg, "mono8"))
-    except CvBridgeError as e:
-      print(e)
+    self.image_pub.publish(data)
 
 def main(args):
   rospy.init_node('image_converter', anonymous=True)

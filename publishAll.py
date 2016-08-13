@@ -13,23 +13,26 @@ from pytesseract import image_to_string
 class video_player:
 
   def __init__(self):
-    self.image_pub = rospy.Publisher("/original_node",Image)
+    self.image_pub = rospy.Publisher("/usb_cam/image_foreground",Image)
     self.cap = cv2.VideoCapture('vid.mp4')
     self.cap.set(5,35)
     self.bridge = CvBridge()
 
   def play(self):
     while True:
-      ret, frame = self.cap.read()
+      ret, image = self.cap.read()
       if not ret:
         print('restart...')
         self.cap.set(2,0)
         continue
+
+      image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+      image = cv2.BackgroundSubtractorMOG().apply(image)
         
-      outimg = frame
+      outimg = image
 
       try:
-        self.image_pub.publish(self.bridge.cv2_to_imgmsg(outimg, "bgr8"))
+        self.image_pub.publish(self.bridge.cv2_to_imgmsg(outimg, "mono8"))
       except CvBridgeError as e:
         print(e)
 

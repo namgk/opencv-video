@@ -21,11 +21,11 @@ class image_converter:
 
   def callback(self,data):
     try:
-      image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+      image = self.bridge.imgmsg_to_cv2(data, "mono8")
     except CvBridgeError as e:
       print(e)
 
-    x, y, w, h = rf_overlay(image)
+    x, y, w, h = self.rf_overlay(image)
     ref = image[y:y+h, x:x+w]
     white = cv2.countNonZero(ref)
 
@@ -41,12 +41,13 @@ class image_converter:
       self.image_pub.publish(self.count)
       self.count_changed = False
 
-  def rf_overlay(image):
+  def rf_overlay(self,image):
     height, width = image.shape[:2]
     x1 = int(width*0.3)
     y1 = int(height*0.8)
     rf_width = int(width*0.15)
     rf_height = int(height*0.1)
+    return (x1, y1, rf_width, rf_height)
 
 def main(args):
   rospy.init_node('image_converter', anonymous=True)
