@@ -6,6 +6,17 @@ import sys
 import os
 import csv
 
+def transform_img(img, img_width=227, img_height=227):
+
+    #Histogram Equalization
+    img[:, :, 0] = cv2.equalizeHist(img[:, :, 0])
+    img[:, :, 1] = cv2.equalizeHist(img[:, :, 1])
+    img[:, :, 2] = cv2.equalizeHist(img[:, :, 2])
+
+    #Image Resizing
+    img = cv2.resize(img, (img_width, img_height), interpolation = cv2.INTER_CUBIC)
+
+    return img
 
 caffe_root = '/home/nhong/workspace/caffe/'  # this file should be run from {caffe_root}/examples (otherwise change this line)
 sys.path.insert(0, caffe_root + 'python')
@@ -46,31 +57,10 @@ transformer.set_mean('data', mean_array)
 transformer.set_transpose('data', (2,0,1))
 #transformer.set_channel_swap('data', (2,1,0))
 
-while True:
-    line = sys.stdin.readline()
+img = cv2.imread('/home/nhong/stanford-cars/cars_train/00001.jpg', cv2.IMREAD_COLOR)
+img = transform_img(img, img_width=227, img_height=227)
 
-    memfile = StringIO.StringIO()
-    try:
-        memfile.write(json.loads(line).encode('latin-1'))
-    except:
-        continue
-         
-    memfile.seek(0)
-    car = numpy.load(memfile)
-
-
-    transformed_image = transformer.preprocess('data', car)
-
-    net.blobs['data'].data[...] = transformed_image
-
-    output = net.forward()
-
-    output_prob = output['prob'][0]
-
-    print 'predicted class is:', labels[output_prob.argmax()]
-
-    # load ImageNet labels
-    # labels_file = caffe_root + 'data/ilsvrc12/synset_words.txt'
-    # labels = numpy.loadtxt(labels_file, str, delimiter='\t')
-
-    # print 'output label:', labels[output_prob.argmax()]
+net.blobs['data'].data[...] = transformer.preprocess('data', img)
+out = net.forward()
+pred_probas = out['prob']
+print labels[pred_probas.argmax()]

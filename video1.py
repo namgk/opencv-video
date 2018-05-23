@@ -6,7 +6,10 @@ import sys
 
 mog = cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=36, detectShadows=True);
 
-for line in sys.stdin:
+while True:
+    line = sys.stdin.readline()
+
+#for line in sys.stdin:
     memfile = StringIO.StringIO()
     try:
         memfile.write(json.loads(line).encode('latin-1'))
