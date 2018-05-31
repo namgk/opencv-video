@@ -8,18 +8,35 @@ mog = cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=36, detectSha
 
 while True:
     line = sys.stdin.readline()
+    
+    if len(line) < 2:
+        continue
+
+    line = line.strip()
+
+    # print len(line)
 
 #for line in sys.stdin:
     memfile = StringIO.StringIO()
     try:
         memfile.write(json.loads(line).encode('latin-1'))
-    except:
+    except Exception as e:
+        print("line length: " + str(len(line)) + " error: " + str(e))
         continue
          
     memfile.seek(0)
     frame = numpy.load(memfile)
 
+    # memfile = StringIO.StringIO()
+    # numpy.save(memfile, frame)
+    # memfile.seek(0)
+    # serialized = json.dumps(memfile.read().decode('latin-1'))
+    # print(serialized)
+
+    # continue
+
     #bw = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)
+
 
     fg = mog.apply(frame);
     bg = mog.getBackgroundImage();
@@ -29,7 +46,11 @@ while True:
     fgDilated = cv2.dilate(fgEroded.copy(), kernel=cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5)), iterations = 2);
     
     im2, contours, hierarchy = cv2.findContours(fgDilated.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
+
+    # print len(contours)
+
+    # continue
+      
     carContours = []
     if len(contours) > 0:
         for c in contours:
@@ -58,11 +79,11 @@ while True:
     # serialized = json.dumps(memfile2.read().decode('latin-1'))
     # print(serialized)
 
-    cv2.imshow('fg',frame)
-    #cv2.imshow('bg',bgmodel)
+    # cv2.imshow('fg',frame)
+    # #cv2.imshow('bg',bgmodel)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
 
 
 

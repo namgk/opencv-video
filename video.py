@@ -13,6 +13,9 @@ while(True):
         print(ret)
         break
 
+    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+
     memfile = StringIO.StringIO()
     numpy.save(memfile, frame)
     memfile.seek(0)

@@ -48,11 +48,18 @@ transformer.set_transpose('data', (2,0,1))
 
 while True:
     line = sys.stdin.readline()
+    if len(line) < 2:
+        continue
+
+    line = line.strip()
+
+    # print len(line)
 
     memfile = StringIO.StringIO()
     try:
         memfile.write(json.loads(line).encode('latin-1'))
-    except:
+    except Exception as e:
+        print("line length: " + str(len(line)) + " error: " + str(e))
         continue
          
     memfile.seek(0)
