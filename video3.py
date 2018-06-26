@@ -5,7 +5,7 @@ import json
 import sys
 import os
 import csv
-
+import base64
 
 labels = list()
 
@@ -48,20 +48,24 @@ while True:
     if len(line) < 2:
         continue
 
-    line = line.strip()
+    #line = line.strip()
 
     # print len(line)
 
-    memfile = StringIO.StringIO()
-    try:
-        memfile.write(json.loads(line).encode('latin-1'))
-    except Exception as e:
-        print("line length: " + str(len(line)) + " error: " + str(e))
-        continue
+    #memfile = StringIO.StringIO()
+    #try:
+    #    memfile.write(json.loads(line).encode('latin-1'))
+    #except Exception as e:
+    #    print("line length: " + str(len(line)) + " error: " + str(e))
+    #    continue
          
-    memfile.seek(0)
-    car = numpy.load(memfile)
+    #memfile.seek(0)
+    #car = numpy.load(memfile)
 
+    frameStr = base64.b64decode(line)
+
+    frameNp = numpy.frombuffer(frameStr, dtype=numpy.uint8);
+    car = cv2.imdecode(frameNp, flags=1)
 
     transformed_image = transformer.preprocess('data', car)
 
